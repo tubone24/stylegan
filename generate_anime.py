@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 import PIL.Image
 import dnnlib.tflib as tflib
+import config
 from datetime import datetime
 import cv2
 import glob
@@ -23,7 +24,7 @@ def generate_image():
 
     # Load pre-trained network.
     # 2019-03-08-stylegan-animefaces-network-02051-021980.pkl (https://www.gwern.net/Faces#anime-faces)
-    with open("2020-01-11-skylion-stylegan2-animeportraits-networksnapshot-024664.pkl", "rb") as f:
+    with open("2019-02-26-stylegan-faces-network-02048-016041.pkl", "rb") as f:
         _, _, Gs = pickle.load(f)
         # Gs = Long-term average of the generator. Yields higher-quality results than the instantaneous snapshot.
 
@@ -48,8 +49,8 @@ def generate_image():
             latents = latents_before + (latents_after - latents_before) * j / SPLIT_NUM
             fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
             images = Gs.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)
-            os.makedirs("results", exist_ok=True)
-            png_filename = os.path.join("results", FILENAME_PREFIX + "-{0:04d}-{1:04d}".format(i, j + 1) + ".png")
+            os.makedirs(config.result_dir, exist_ok=True)
+            png_filename = os.path.join(config.result_dir, FILENAME_PREFIX + "-{0:04d}-{1:04d}".format(i, j + 1) + ".png")
             PIL.Image.fromarray(images[0], 'RGB').save(png_filename)
 
 
@@ -67,7 +68,7 @@ def create_mp4():
 
 
 def clear_results():
-    shutil.rmtree("results", ignore_errors=True)
+    shutil.rmtree(config.result_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":
